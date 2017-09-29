@@ -1,0 +1,42 @@
+name = "forgetful-mind"
+
+[service-connections.db_conn1]
+name = "db_conn1"
+uri = 'mongo://docker-secx:27017'
+default_db = 'syslog-events'
+default_collection = 'json'
+default_oid = '_id'
+#rule = python lambda based on data 
+
+# [service-connections.docker-secx.db_conn2]
+# name = "db_conn2"
+# uri = 'mongo://docker-secx:27017'
+# default_db = 'syslog-events'
+# default_collection = 'json'
+# default_oid = '_id'
+# #rule = python lambda based on data 
+
+[service-connections.publishers.queue1]
+db_connections = ["db_conn1", "db_conn2"]
+name = "queue1"
+uri = "redis://docker-secx:6379"
+queue = "forgetful-mind"
+
+# [service-connections.docker-secx.publishers.queue2]
+# db_connections = ["db_conn1", "db_conn2"]
+# name = "queue2"
+# uri = "redis://docker-secx:6379"
+# queue = "forgetful-mind"
+
+
+[service-connections.publishers.queue1.subscribers.logstash]
+name = "logstash"
+uri = "redis://docker-secx:6379"
+queue = "logstash"
+publishers = ["queue1", "queue2"]
+
+
+[service-connections.publishers.queue2.subscribers.logstash]
+name = "logstash"
+uri = "redis://docker-secx:6379"
+queue = "logstash"
